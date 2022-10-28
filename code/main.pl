@@ -114,14 +114,28 @@ playHH :-   welcome,
 
 % no_more_free_squares( ?Board )
 % succeeds if Board has no more empty squares
-no_more_free_squares( Board ).
+no_more_free_squares( Board ) :-
+    is_empty( Piece ),
+    \+ square( X, Y, Board, squ(X, Y, Piece ) ).
 
 % playHH( ?Player, ?Board)
 % 3 possibilities:  report winner / report stalemate / 
 %                   do move and play again
-playHH( Player, Board ).
+playHH( _, Board ) :-
+    and_the_winner_is( Board, Someplayer ),
+    report_winner( Someplayer ).
 
-% TODO at this point: create tests!
+playHH( _, Board ) :-
+    no_more_free_squares( Board ),
+    report_stalemate.
+
+playHH( Player, Board ) :-
+    get_legal_move( Player, X, Y, Board ),
+    report_move( Player, X, Y ),
+    fill_square( X, Y, Player, Board, NewBoard ),
+    display_board( NewBoard ),
+    other_player( Player, Next ),
+    playHH( Next, NewBoard).
 
 /*  4. RUNNING A GAME FOR 1 HUMAN AND THE COMPUTER  */
 
@@ -132,7 +146,7 @@ playHC.
 % playHC( ?Player, ?Board)
 % 4 possibilieites: report winner / report stalemate /
 %                   human move (x) / computer move (o)
-playHC ( Player, Board ).
+playHC( Player, Board ).
 
 /*          5. IMPLEMENTING THE HEURISTICS          */
 
@@ -157,7 +171,6 @@ playSS( Player, Board ).
 possible_win( Player, Board ).
 
 /*         ***       TEST CASES       ***           */
-% (note to self: everything but the user input stuff)
 
 % board representation
 
@@ -188,7 +201,8 @@ test_square :-
     square(3, 3, [[a,b,c],[d,e,f],[g,h,i]], squ(3, 3, i)).
 
 test_empty_square :-
-    empty_square(2, 1, [[a,b,c],[d,e,f],[g,h,i]]).
+    empty_square(2, 1, [[a,b,c],[d,e,f],[g,h,i]]),
+    \+ empty_square(3, 2, [[a,b,c],[d,e,f],[g,h,i]]).
 
 % winner recognition
 
@@ -196,3 +210,9 @@ test_winner :-
     and_the_winner_is( [ [x, x, x], [b, b, b], [b, b, b] ], x ),
     and_the_winner_is( [ [o, x, x], [b, o, b], [b, b, o] ], o ),
     and_the_winner_is( [ [x, x, o], [b, b, o], [b, o, o] ], o ).
+
+% playing human-human game
+
+test_no_free_squares :-
+    no_more_free_squares( [[a,x,c],[d,e,f],[g,h,i]] ),
+    \+ no_more_free_squares( [[a,b,c],[d,e,f],[g,h,i]] ).
