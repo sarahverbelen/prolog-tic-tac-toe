@@ -106,11 +106,12 @@ and_the_winner_is( Board, Player ) :-
 % playHH/0
 % Provided in specification of the project
 % Begins a human-human game
-playHH :-   welcome,
-            initial_board( Board ),
-            display_board( Board ),
-            is_cross( Cross ),
-            playHH( Cross, Board ).
+playHH :-   
+    welcome,
+    initial_board( Board ),
+    display_board( Board ),
+    is_cross( Cross ),
+    playHH( Cross, Board ).
 
 % no_more_free_squares( ?Board )
 % succeeds if Board has no more empty squares
@@ -122,8 +123,8 @@ no_more_free_squares( Board ) :-
 % 3 possibilities:  report winner / report stalemate / 
 %                   do move and play again
 playHH( _, Board ) :-
-    and_the_winner_is( Board, Someplayer ),
-    report_winner( Someplayer ).
+    and_the_winner_is( Board, Player ),
+    report_winner( Player ).
 
 playHH( _, Board ) :-
     no_more_free_squares( Board ),
@@ -141,12 +142,41 @@ playHH( Player, Board ) :-
 
 % playHC/0
 % begins a human-computer game
-playHC.
+playHC :-
+    welcome,
+    initial_board( Board ),
+    display_board( Board ),
+    is_cross( Cross ),
+    playHC( Cross, Board ).
 
 % playHC( ?Player, ?Board)
-% 4 possibilieites: report winner / report stalemate /
+% 4 possibilities: report winner / report stalemate /
 %                   human move (x) / computer move (o)
-playHC( Player, Board ).
+playHC( _, Board ) :-
+    no_more_free_squares( Board ),
+    report_stalemate.
+
+playHC(_, Board ) :-
+    and_the_winner_is( Board, Player),
+    report_winner( Player ).
+
+playHC( Player, Board ) :-
+    is_cross( Player ), % human move
+    get_legal_move( Player, X, Y, Board ),
+    report_move( Player, X, Y ),
+    fill_square( X, Y, Player, Board, NewBoard ),
+    display_board( NewBoard ),
+    other_player( Player, Next ),
+    playHC( Next, NewBoard).
+
+playHC( Player, Board ) :-
+    is_nought( Player ), % computer move
+    empty_square( X, Y, Board ),
+    report_move( Player, X, Y ),
+    fill_square( X, Y, Player, Board, NewBoard ),
+    display_board( NewBoard ),
+    other_player( Player, Next ),
+    playHC( Next, NewBoard).
 
 /*          5. IMPLEMENTING THE HEURISTICS          */
 
