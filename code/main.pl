@@ -73,8 +73,8 @@ square( X, 3, Board, squ(X, 3, Res) ) :-
 % succeeds when X and Y are numbers between 1 and 3, Board is a representation of a board state
 % and the relevant square is empty
 empty_square( X, Y, Board ) :-
-    square(X, Y, Board, squ(X, Y, Piece)),
-    is_empty(Piece).
+    square( X, Y, Board, squ( X, Y, Piece ) ),
+    is_empty( Piece ).
 
 % initial_board( ?Board )
 % Succeeds when Board represents the initial state of the board
@@ -88,7 +88,18 @@ empty_board( [ [_, _, _], [_, _, _], [_, _, _] ] ).
 
 % and_the_winner_is( ?Board, ?Player )
 % Succeeds if Player has won on Board
-and_the_winner_is( Board, Player ).
+and_the_winner_is( Board, Player ) :- 
+    is_piece( Player ),
+    row( X, Board, row( X, Player, Player, Player ) ).
+
+and_the_winner_is( Board, Player ) :-
+    is_piece( Player ),
+    column( X, Board, col( X, Player, Player, Player ) ).
+
+and_the_winner_is( Board, Player ) :- 
+    is_piece( Player ),
+    diagonal( X, Board, dia( X, Player, Player, Player ) ).
+
 
 /*     3. RUNNING A GAME FOR 2 HUMAN PLAYERS        */
 
@@ -178,3 +189,10 @@ test_square :-
 
 test_empty_square :-
     empty_square(2, 1, [[a,b,c],[d,e,f],[g,h,i]]).
+
+% winner recognition
+
+test_winner :-
+    and_the_winner_is( [ [x, x, x], [b, b, b], [b, b, b] ], x ),
+    and_the_winner_is( [ [o, x, x], [b, o, b], [b, b, o] ], o ),
+    and_the_winner_is( [ [x, x, o], [b, b, o], [b, o, o] ], o ).
